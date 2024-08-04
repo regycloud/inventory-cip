@@ -37,7 +37,7 @@ export default function Login() {
       localStorage.setItem('user', JSON.stringify(user));
       // setUser(userCredential.user);
       console.log('Login successful');
-      navigate('/home');
+      navigate('/');
     } catch (error) {
       console.error('Error logging in:', error);
       // Handle error appropriately

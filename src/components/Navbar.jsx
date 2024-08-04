@@ -15,8 +15,9 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      localStorage.removeItem('currentUser'); // Hapus dari local storage saat logout
       console.log('Logout successful');
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }
