@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
         // Hapus informasi pengguna dari local storage jika logout
         localStorage.removeItem('currentUser');
       }
+      console.log('User status:', user);
       setCurrentUser(user);
     });
 

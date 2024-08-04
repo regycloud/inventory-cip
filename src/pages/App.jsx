@@ -8,43 +8,42 @@ import InventoryPage from './InventoryPage';
 import Account from './Account';
 import Layout from '../components/Layout';
 import { AuthProvider } from '../context/AuthContext';
+import ProtectedRoute from '../components/ProtectedRoute';
+import NotFound from './NotFound';
 
 
 function App() {
   return (
     <AuthProvider>
-
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={
-          <Layout>
-            <Home /> 
-          </Layout>
-          }/>
-        <Route path="/home/account/:username" element={
-          <Layout>
-            <Account />
-          </Layout>
-          } />
-        <Route path="/inventory" element={
-          <Layout>
-            <InventoryPage />
-          </Layout>
-      } />
-        <Route path="/inventory/add" element={
-          <Layout>
-            <AddItemForm />
-          </Layout>
-          } />
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/home/account/:username" element={<Account />} />
+              <Route path="/inventory" element={<InventoryPage />} />
+              <Route path="/inventory/add" element={<AddItemForm />} />
+            </Route>
+          </Route>
+          {/* Contoh di luar protected route */}
+          {/* <Route path="/home/account/:username" element={
+            <Layout>
+              <Account />
+            </Layout>
+          } /> */}
           <Route path="/login" element={
-          <Layout>
-            <Login />
-          </Layout>
+            <Layout>
+              <Login />
+            </Layout>
           } />
-        {/* Tambahkan rute lainnya di sini */}
-      </Routes>
-    </Router>
+          {/* Tambahkan rute lainnya di sini */}
+          <Route path="*" element={
+            <NotFound />
+          } />
+
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }

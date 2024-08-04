@@ -1,15 +1,34 @@
+// import React from 'react';
+// import Navbar from './Navbar';
+
+// function Layout({ children }) {
+//     console.log('ngntd')
+//     return (
+//     <div>
+//       <Navbar />
+//       <main>
+//         {children}
+//       </main>
+//     </div>
+//   );
+// }
+
+// export default Layout;
+
+// src/components/Layout.jsx
 import React from 'react';
 import Navbar from './Navbar';
+import { Outlet } from 'react-router-dom';
 
-function Layout({ children }) {
-    return (
-    <div>
+const Layout = () => {
+  return (
+    <>
       <Navbar />
       <main>
-        {children}
+        <Outlet />
       </main>
-    </div>
+    </>
   );
-}
+};
 
 export default Layout;

@@ -1,18 +1,18 @@
 // src/components/ProtectedRoute.jsx
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
   const { currentUser } = useAuth();
 
+  // Jika tidak ada pengguna yang login, arahkan ke halaman login
   if (!currentUser) {
-    // Jika pengguna tidak login, arahkan ke halaman login
     return <Navigate to="/login" />;
   }
 
-  // Jika pengguna sudah login, tampilkan halaman yang diminta
-  return children;
+  // Jika ada pengguna yang login, render komponen anak
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

@@ -32,12 +32,12 @@ export default function Navbar() {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Button color="inherit" onClick={() => navigate('/home')}>
-            Inventory 
+          <Button color="inherit" onClick={() => navigate('/')}>
+            Home 
           </Button>
         </Typography>
         <Button color="inherit" onClick={() => navigate(`/home/account/${username}`)}>Account</Button>
-        <Button color="inherit" onClick={() => navigate('/home/sparepart')}>Sparepart</Button>
+        <Button color="inherit" onClick={() => navigate('/inventory')}>Inventory List</Button>
         <Button color="inherit" onClick={handleLogout}>Logout</Button>
       </Toolbar>
     </AppBar>

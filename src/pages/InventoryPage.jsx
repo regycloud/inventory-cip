@@ -5,10 +5,16 @@ import { db } from '../firebase/firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
 
 
 
 const InventoryPage = () => {
+    const { currentUser } = useAuth();
+
+    if (!currentUser) {
+      return <p>Loading...</p>;}
 
   const [rows, setRows] = useState([]);
   const [columns, setColumns] = useState([
