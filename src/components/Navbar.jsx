@@ -32,7 +32,7 @@ export default function Navbar() {
         </IconButton>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Button color="inherit" onClick={() => navigate('/home')}>
-            Nama Perusahaan
+            Inventory 
           </Button>
         </Typography>
         <Button color="inherit" onClick={() => navigate(`/home/account/${username}`)}>Account</Button>
