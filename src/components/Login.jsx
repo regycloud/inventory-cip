@@ -33,7 +33,9 @@ export default function Login() {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      setUser(userCredential.user);
+      const user = userCredential.user
+      localStorage.setItem('user', JSON.stringify(user));
+      // setUser(userCredential.user);
       console.log('Login successful');
       navigate('/home');
     } catch (error) {
