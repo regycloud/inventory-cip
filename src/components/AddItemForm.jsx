@@ -89,8 +89,8 @@ const AddItemForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Typography variant="h6">Add New Items</Typography>
+    <form onSubmit={handleSubmit} style={{ color: 'white' }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>Add New Items</Typography>
       {items.map((item, index) => (
         <Grid container spacing={2} key={index} sx={{ mb: 2 }}>
           <Grid item xs={12}>
@@ -100,6 +100,7 @@ const AddItemForm = () => {
               name="description"
               value={item.description}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -109,6 +110,7 @@ const AddItemForm = () => {
               name="manufacturer"
               value={item.manufacturer}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -118,6 +120,7 @@ const AddItemForm = () => {
               name="serialNumber"
               value={item.serialNumber}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -128,6 +131,7 @@ const AddItemForm = () => {
               name="quantity"
               value={item.quantity}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -137,6 +141,7 @@ const AddItemForm = () => {
               name="unit"
               value={item.unit}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -146,6 +151,7 @@ const AddItemForm = () => {
               name="location"
               value={item.location}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -155,6 +161,7 @@ const AddItemForm = () => {
               name="warehouseLocation"
               value={item.warehouseLocation}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -164,19 +171,32 @@ const AddItemForm = () => {
               name="remarks"
               value={item.remarks}
               onChange={(e) => handleChange(index, e)}
+              sx={{ input: { color: 'white' }, label: { color: 'white' } }}
             />
           </Grid>
           <Grid item xs={12}>
             <input
               type="file"
+              id={`file-upload-${index}`}
               accept="image/*"
+              style={{ display: 'none' }}
               onChange={(e) => handleFileChange(index, e)}
             />
+            <label htmlFor={`file-upload-${index}`}>
+              <Button
+                variant="contained"
+                color="primary"
+                component="span"
+                sx={{ color: 'white' }}
+              >
+                {item.photo ? 'Change Photo' : 'Upload Photo'}
+              </Button>
+            </label>
           </Grid>
           {items.length > 1 && (
             <Grid item xs={12}>
               <IconButton onClick={() => handleRemoveForm(index)} color="error">
-                <RemoveIcon />
+                <RemoveIcon sx={{ color: 'white' }} />
               </IconButton>
             </Grid>
           )}
@@ -190,6 +210,7 @@ const AddItemForm = () => {
             color="primary"
             startIcon={<AddIcon />}
             onClick={handleAddForm}
+            sx={{ color: 'white', borderColor: 'white' }}
           >
             Add Form
           </Button>
@@ -201,6 +222,7 @@ const AddItemForm = () => {
             color="primary"
             disabled={uploading}
             startIcon={<UploadIcon />}
+            sx={{ color: 'white' }}
           >
             {uploading ? 'Uploading...' : 'Submit'}
           </Button>

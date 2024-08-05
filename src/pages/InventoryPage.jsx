@@ -1,69 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { db } from '../firebase/firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
-import { Button, Modal, Box, Typography, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { Button, Modal, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-// Style untuk modal
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 600, // Lebar modal
-  maxHeight: '80vh', // Maksimal tinggi modal
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  overflowY: 'auto', // Tambahkan scroll vertikal
-};
-
-// Style untuk DataGrid
-const dataGridStyles = {
-  '& .MuiDataGrid-cell': {
-    color: '#fff', // Warna teks sel
-  },
-  '& .MuiDataGrid-columnHeaderTitle': {
-    color: '#fff', // Warna teks header
-  },
-  '& .MuiDataGrid-columnHeader': {
-    backgroundColor: '#333', // Warna latar belakang header
-    borderBottom: '2px solid #555', // Batas bawah header
-  },
-  '& .MuiDataGrid-footerContainer': {
-    backgroundColor: '#333', // Warna latar belakang footer
-    color: '#fff', // Warna teks footer
-  },
-  '& .MuiDataGrid-footerCell': {
-    color: '#fff', // Warna teks footer cell
-  },
-  '& .MuiDataGrid-toolbarContainer': {
-    color: '#fff', // Warna teks toolbar
-  },
-  '& .MuiDataGrid-selectedRowCount': {
-    color: '#fff', // Warna teks row selected
-  },
-  '& .MuiDataGrid-pagination': {
-    color: '#fff', // Warna teks pagination
-  },
-};
+import TransactionHistory from '../components/TransactionHistory';
+import TransactionHandler from '../components/TransactionHandler';
 
 const InventoryPage = () => {
   const { currentUser } = useAuth();
   const [rows, setRows] = useState([]);
-  const [columns, setColumns] = useState([
-    { field: 'description', headerName: 'Name', flex: 2 },
-    { field: 'quantity', headerName: 'Quantity', flex: 1 },
-    { field: 'unit', headerName: 'Unit', flex: 1 },
-    { field: 'warehouseLocation', headerName: 'Warehouse Location', flex: 2 },
-  ]);
-  const [selectedItem, setSelectedItem] = useState(null); // State for selected item
-  const [openModal, setOpenModal] = useState(false); // State for modal visibility
-  const navigate = useNavigate(); // For navigation
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,16 +35,25 @@ const InventoryPage = () => {
   }, []);
 
   const handleAddClick = () => {
-    navigate('/inventory/add'); // Navigate to /inventory/add page
+    navigate('/inventory/add');
   };
 
   const handleRowClick = (params) => {
-    setSelectedItem(params.row);
-    setOpenModal(true);
+    setSelectedRow(params.row);
+    setIsDetailModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleDetailModalClose = () => {
+    setIsDetailModalOpen(false);
+    setSelectedRow(null);
+  };
+
+  const handleTransactionModalOpen = () => {
+    setIsTransactionModalOpen(true);
+  };
+
+  const handleTransactionModalClose = () => {
+    setIsTransactionModalOpen(false);
   };
 
   return (
@@ -103,64 +64,117 @@ const InventoryPage = () => {
         onClick={handleAddClick}
         style={{ marginBottom: '16px' }}
       >
-        Add Inventory
+        Add Item
       </Button>
       <div style={{ height: 400, width: '100%' }}>
         <DataGrid
           rows={rows}
-          columns={columns}
+          columns={[
+            { field: 'description', headerName: 'Name', width: 200 },
+            { field: 'quantity', headerName: 'Quantity', width: 150 },
+            { field: 'unit', headerName: 'Unit', width: 150 },
+            { field: 'warehouseLocation', headerName: 'Warehouse Location', width: 200 },
+          ]}
           pageSize={10}
+          sx={{
+            '& .MuiDataGrid-cell': {
+              color: 'white',
+            },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              color: 'black',
+            },
+            '& .MuiDataGrid-footerContainer': {
+              color: 'white',
+            },
+          }}
           onRowClick={handleRowClick}
-          sx={dataGridStyles}
         />
       </div>
-      
-      {/* Modal for displaying item details */}
-      <Modal
-        open={openModal}
-        onClose={handleCloseModal}
-        aria-labelledby="modal-title"
-        aria-describedby="modal-description"
-      >
-        <Box sx={modalStyle}>
-          <IconButton
-            sx={{ position: 'absolute', top: 8, right: 8 }}
-            onClick={handleCloseModal}
-          >
-            <CloseIcon />
-          </IconButton>
-          {selectedItem ? (
-            <div>
-              {selectedItem.photoURL && (
-                <img src={selectedItem.photoURL} alt="Item" style={{ width: '100%', marginBottom: 16 }} />
-              )}
-              <Typography id="modal-title" variant="h6" component="h2" sx={{ marginBottom: 2, color: 'black' }}>
-                <strong>Description:</strong> {selectedItem.description}
+
+      {/* Modal Detail Item */}
+      <Modal open={isDetailModalOpen} onClose={handleDetailModalClose}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            overflowY: 'auto',
+            maxHeight: '80vh',
+          }}
+        >
+          {selectedRow && (
+            <>
+              <Typography variant="h6" sx={{ color: 'black', mb: 2 }}>
+                {selectedRow.description}
               </Typography>
-              <Typography id="modal-description" sx={{ mb: 2, color: 'black' }}>
-                <strong>Location:</strong> {selectedItem.location}
+              <img
+                src={selectedRow.photoURL}
+                alt={selectedRow.description}
+                style={{ width: '100%', marginBottom: '16px' }}
+              />
+              <Typography variant="body1" sx={{ color: 'black' }}>
+                <strong>Location:</strong> {selectedRow.location}
               </Typography>
-              <Typography id="modal-description" sx={{ mb: 2, color: 'black' }}>
-                <strong>Manufacturer:</strong> {selectedItem.manufacturer}
+              <Typography variant="body1" sx={{ color: 'black' }}>
+                <strong>Manufacturer:</strong> {selectedRow.manufacturer}
               </Typography>
-              <Typography id="modal-description" sx={{ mb: 2, color: 'black' }}>
-                <strong>Quantity:</strong> {selectedItem.quantity}
+              <Typography variant="body1" sx={{ color: 'black' }}>
+                <strong>Quantity:</strong> {selectedRow.quantity}
               </Typography>
-              <Typography id="modal-description" sx={{ mb: 2, color: 'black' }}>
-                <strong>Remarks:</strong> {selectedItem.remarks}
+              <Typography variant="body1" sx={{ color: 'black' }}>
+                <strong>Remarks:</strong> {selectedRow.remarks}
               </Typography>
-              <Typography id="modal-description" sx={{ mb: 2, color: 'black' }}>
-                <strong>Serial Number:</strong> {selectedItem.serialNumber}
+              <Typography variant="body1" sx={{ color: 'black' }}>
+                <strong>Serial Number:</strong> {selectedRow.serialNumber}
               </Typography>
-              <Typography id="modal-description" sx={{ mb: 2, color: 'black' }}>
-                <strong>Unit:</strong> {selectedItem.unit}
+              <Typography variant="body1" sx={{ color: 'black' }}>
+                <strong>Unit:</strong> {selectedRow.unit}
               </Typography>
-              <Typography id="modal-description" sx={{ mb: 2, color: 'black' }}>
-                <strong>Warehouse Location:</strong> {selectedItem.warehouseLocation}
+              <Typography variant="body1" sx={{ color: 'black' }}>
+                <strong>Warehouse Location:</strong> {selectedRow.warehouseLocation}
               </Typography>
-            </div>
-          ) : (
-            <Typography>No item selected</Typography>
+              <TransactionHistory itemId={selectedRow.id} />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleTransactionModalOpen}
+                disabled={selectedRow.quantity === 0}
+              >
+                Kurangi Item
+              </Button>
+            </>
+          )}
+        </Box>
+      </Modal>
+
+      {/* Modal Formulir Transaksi */}
+      <Modal open={isTransactionModalOpen} onClose={handleTransactionModalClose}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            overflowY: 'auto',
+            maxHeight: '80vh',
+          }}
+        >
+          {selectedRow && (
+            <TransactionHandler
+              selectedRow={selectedRow}
+              setRows={setRows}
+              currentUser={currentUser}
+              handleModalClose={handleTransactionModalClose}
+            />
           )}
         </Box>
       </Modal>
